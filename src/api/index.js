@@ -26,6 +26,7 @@ export default ({ config, db }) => {
   api.post('/message', (req, res) => {
     // Inbound message annotation
     console.log('inbound message')
+    console.log(req.body)
 
     if (req.body.type && req.body.type == 'verification') {
       const body = {
