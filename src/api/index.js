@@ -12,7 +12,8 @@ const secret = process.env.WEBHOOK_SECRET
 export default ({ config, db }) => {
   let api = Router()
   const response = {
-      "score": 0.50
+    status: 'complete',
+    score: 0.50
   }
 
   api.get('/', (req, res) => {
@@ -38,24 +39,40 @@ export default ({ config, db }) => {
     }
   })
 
-  api.post('/space/:spaceId', (req, res) => {
-    // @todo: get all people in this space & store.
-  })
-
   api.get('/:space/:user', (req, res) => {
     if (req.params && req.params.space == 'usa') {
       // @todo: get Donald ratings
-    } else if (req.params && req.params.space && req.params.user) {
-      // @todo: check if exists
-      // @todo: if yes, return
-      // @todo: if no, query for people in space
-      //                query for actions relating to people(?)
-      //                query for sentiment on action text
-      //                store results
-      res.json(Object.assign(response, {
-        name: req.params.user,
-        space: req.params.space
-      }))
+    }
+    
+    if (req.params && req.params.space && req.params.user) {
+      // check if exists
+      let queries = []
+      queries.push(Space.findOne({ wwsId: req.params.space }))
+      queries.push(User.findOne({ wwsId: req.params.user }))
+      Promise.all(queries).then(results => {
+        let space = results[0]
+        let user = result[1]
+        if (space && user) {
+          // @todo: if yes, return
+          ScoreRecord.findOne({
+            user: mongoose.Types.ObjectId(user._id)
+          }).then(record => {
+            res.json(Object.assign(response, {
+              score: record.score,
+              name: req.params.user,
+              space: req.params.space
+            }))
+          })
+        } else {
+          // @todo: if no, query for people in space
+          //                query for actions relating to people(?)
+          //                query for sentiment on action text
+          //                store results
+          res.json({
+            status: 'pending'
+          })
+        }
+      })
     } else {
       res.send(500)
     }
