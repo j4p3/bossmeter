@@ -1,10 +1,13 @@
 import mongoose from 'mongoose'
 
-const momentSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema({
   wwsId: { type: String },
   spaceWwsId: { type: String },
-  subjectWwsId: { type: String },
-  content: { type: String }
+  authorWwsId: { type: String },
+  authorName: { type: String },
+  content: { type: String },
+  created: { type: Date },
+  annotations: { type: Array }
 })
 
-module.exports = mongoose.model('Moment', momentSchema)
+module.exports = mongoose.model('Message', messageSchema)

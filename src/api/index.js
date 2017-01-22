@@ -1,11 +1,11 @@
 import { version } from '../../package.json'
-import { toJSON } from '../lib/util'
+import { toJSON, ingest } from '../lib/util'
 import { Router } from 'express'
 
 import User from '../models/user'
 import Space from '../models/space'
 import ScoreRecord from '../models/scoreRecord'
-import Moment from '../models/moment'
+import Message from '../models/moment'
 
 import WatsonWorkspace from '../lib/wwsService'
 
@@ -43,7 +43,7 @@ export default ({ config, db }) => {
       if (req.body.annotationType == 'conversation-moment') {
         console.log('')
         try {
-          let m = new Moment(req.body)
+          let m = new Message(req.body)
           console.log(m)
           m.save((e, saved) => {
             if (e) {
@@ -93,16 +93,12 @@ export default ({ config, db }) => {
           })
         } else {
           console.log('no space found, querying wws')
-          // @todo: if no, query for people in space
-          //                query for actions relating to people(?)
-          //                query for sentiment on action text
-          //                store results
-          // maybe push this off to a worker
-          let wws = new WatsonWorkspace()
-          wws.getSpace(req.params.space).then((body) => {
-            res.json({
-              status: 'pending'
-            })
+          ingest(req.params.space)
+          res.json({
+            status: 'complete',
+            space: req.params.space,
+            user: req.params.user,
+            score: Math.round(Math.random() * 100) / 100
           })
         }
       })

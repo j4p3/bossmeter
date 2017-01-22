@@ -44,6 +44,66 @@ export default class WatsonWorkspace {
 
   }
 
+  getMessages(space, options) {
+    let messages = []
+    let queryOptions = Object.assign({}, GraphQLOptions)
+    let query = `space(id: "${space}") {
+        conversation {
+          messages(first: 200) {
+            items {
+              content
+              annotations
+              created
+              createdBy {
+                displayName
+                id
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }`
+    if (options && options.after) {
+      let query = `space(id: "${space}") {
+        conversation {
+          messages(first: 200, after: "${options.after}") {
+            items {
+              content
+              annotations
+              created
+              createdBy {
+                displayName
+                id
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }`
+    }
+
+    queryOptions.headers.jwt = this.accessToken
+    queryOptions.body = query
+
+    return rp(queryOptions).then((res) => {
+      console.log(res)
+      let messages = res.body.data.conversation.messages
+      return messages
+    })
+    .catch((e) => {
+      console.log('WWS getSpace failed')
+        console.log(e)
+    })
+  }
+
   getSpace(id) {
     let queryOptions = Object.assign({}, GraphQLOptions)
     let query = `space(id: "${id}") {
