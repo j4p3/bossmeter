@@ -11,9 +11,14 @@ export default ({ config, db }) => {
 		res.json({ version })
 	})
 
+  api.get('/message', (req, res) => {
+    console.log(req)
+    res.ok()
+  })
+
   api.post('/message', (req, res) => {
     console.log(req)
-    res.json(response)
+    res.ok()
   })
 
   api.get('/:space/:user', (req, res) => {
