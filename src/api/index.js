@@ -25,6 +25,7 @@ export default ({ config, db }) => {
 
   api.post('/message', (req, res) => {
     // Inbound message annotation
+    console.log('inbound message')
 
     if (req.body.type && req.body.type == 'verification') {
       const body = {
@@ -37,11 +38,22 @@ export default ({ config, db }) => {
       res.json(body)
 
     } else if (req.body.type && req.body.type == 'new_message_annotation') {
+      console.log('inbound message annotation')
       if (req.body.annotationType == 'conversation-moment') {
-        let m = new Moment(req.body)
-        m.save()
+        console.log('')
+        try {
+          let m = new Moment(req.body)
+          console.log(m)
+          m.save((e, saved) => {
+            if (e) {
+              console.log(e)
+            }
+            res.send(200)
+          })
+        } catch (e) {
+          console.log(e)
+        }
       }
-      res.send(200)
     } else {
       res.send(500)
     }
