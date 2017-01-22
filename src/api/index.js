@@ -19,7 +19,9 @@ export default ({ config, db }) => {
     if (body.type && body.type == 'verification') {
       const hash = crypto.createHmac('sha256', secret).update(req.rawBody).digest('hex')
       res.set('X-OUTBOUND-TOKEN', hash)
-      res.send()
+      res.json({
+        response: body.challenge
+      })
     } else {
       res.send(500)
     }
