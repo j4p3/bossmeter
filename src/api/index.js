@@ -56,7 +56,7 @@ export default ({ config, db }) => {
         }
       }
     } else {
-      res.send(500)
+      res.send(200)
     }
   })
 
