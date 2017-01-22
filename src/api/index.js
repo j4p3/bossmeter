@@ -15,13 +15,16 @@ export default ({ config, db }) => {
   })
 
   api.post('/message', (req, res) => {
-    let body = toJSON(req)
-    if (body.type && body.type == 'verification') {
-      const hash = crypto.createHmac('sha256', secret).update(req.rawBody).digest('hex')
+    if (req.body.type && req.body.type == 'verification') {
+      const body = {
+        response: req.body.challenge
+      }
+      const hash = crypto.createHmac('sha256', secret)
+        .update(JSON.stringify(body))
+        .digest('hex')
       res.set('X-OUTBOUND-TOKEN', hash)
-      res.json({
-        response: body.challenge
-      })
+      console.log(body)
+      res.json(body)
     } else {
       res.send(500)
     }

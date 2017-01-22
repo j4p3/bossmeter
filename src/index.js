@@ -8,20 +8,9 @@ import config from './config.json'
 
 let app = express();
 
-const parser = (req, res, next) => {
-  let buffers = []
-  req.on("data", (chunk) => {
-    buffers.push(chunk);
-  });
-  req.on("end", () => {
-    req.rawBody = Buffer.concat(buffers);
-    next();
-  });
-}
-
 app.server = http.createServer(app)
 
-app.use(parser)
+app.use(bodyParser.json())
 
 // 3rd party middleware
 // app.use(cors({
