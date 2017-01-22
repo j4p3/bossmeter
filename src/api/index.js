@@ -43,7 +43,7 @@ export default ({ config, db }) => {
     if (req.params && req.params.space == 'usa') {
       // @todo: get Donald ratings
     }
-    
+
     if (req.params && req.params.space && req.params.user) {
       // check if exists
       let queries = []
@@ -68,6 +68,16 @@ export default ({ config, db }) => {
           //                query for actions relating to people(?)
           //                query for sentiment on action text
           //                store results
+          // maybe push this off to a worker
+          const peopleQuery = {
+            "url": `${process.env.WWS_URL}/graphql`,
+            "headers": {
+              "Content-Type": "application/graphql",
+              "x-graphql-view": "PUBLIC"
+            },
+            "method": "POST",
+            "body": ""
+          }
           res.json({
             status: 'pending'
           })
