@@ -4,14 +4,14 @@ const crypto = require('crypto')
 const secret = process.env.WEBHOOK_SECRET
 
 export default ({ config, db }) => {
-	let api = Router()
+  let api = Router()
   const response = {
       "score": 0.50
   }
 
-	api.get('/', (req, res) => {
-		res.json({ version })
-	})
+  api.get('/', (req, res) => {
+    res.json({ version })
+  })
 
   api.post('/message', (req, res) => {
     console.log(req.body)
@@ -35,5 +35,5 @@ export default ({ config, db }) => {
     }
   })
 
-	return api
+  return api
 }
