@@ -1,5 +1,7 @@
 import { version } from '../../package.json'
 import { Router } from 'express'
+const crypto = require('crypto')
+const secret = process.env.WEBHOOK_SECRET
 
 export default ({ config, db }) => {
 	let api = Router()
@@ -12,7 +14,11 @@ export default ({ config, db }) => {
 	})
 
   api.post('/message', (req, res) => {
-    console.log(req)
+    console.log(req.body)
+    if (req.body.type && req.body.type == 'verification') {
+      const hash = crypto.createHmac('sha256', secret).update(req.body.challenge).digest('hex')
+      res.set('X-OUTBOUND-TOKEN', hash)
+    }
     res.send(200)
   })
 
