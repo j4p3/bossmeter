@@ -1,9 +1,10 @@
 {
   "name": "bossmeter",
   "version": "0.0.2",
+  "private": true,
   "main": "dist",
   "scripts": {
-    "dev": "nodemon -w src --exec \"babel-node src --presets es2015,stage-0\"",
+    "dev": "nodemon -w src --exec \"babel-node --inspect src --presets es2015,stage-0\"",
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
     "start": "node dist",
     "prestart": "npm run -s build",
@@ -40,6 +41,7 @@
     "express": "^4.13.3",
     "graphql": "^0.8.2",
     "mongoose": "^4.7.7",
+    "request-promise": "^4.1.1",
     "watson-developer-cloud": "^2.15.2"
   },
   "devDependencies": {
