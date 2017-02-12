@@ -4,7 +4,7 @@
   "private": true,
   "main": "dist",
   "scripts": {
-    "dev": "nodemon -w src --exec \"babel-node --inspect src --presets es2015,stage-0\"",
+    "dev": "nodemon -w src --exec \"npm run start\"",
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
     "start": "node dist",
     "prestart": "npm run -s build",
