@@ -11,6 +11,7 @@ let app = express();
 app.server = http.createServer(app)
 
 app.use(function(req, res, next) {
+  console.log(`${req.method}\t${req.originalUrl}`)
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();

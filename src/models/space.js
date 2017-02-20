@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 
+mongoose.promise = global.Promise
 const spaceSchema = new mongoose.Schema({
   wwsId: { type: String }
 })

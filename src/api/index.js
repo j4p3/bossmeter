@@ -1,15 +1,18 @@
-import { version } from '../../package.json'
-import { toJSON, ingest } from '../lib/util'
-import { Router } from 'express'
+/*============================================================================
+=            API: endpoints for handling data & api requests            =
+============================================================================*/
 
+import { Router } from 'express'
+const crypto = require('crypto')
+
+import { version } from '../../package.json'
+import { ingest } from '../lib/util'
+import WatsonWorkspace from '../lib/wwsService'
 import User from '../models/user'
 import Space from '../models/space'
 import ScoreRecord from '../models/scoreRecord'
 import Message from '../models/moment'
 
-import WatsonWorkspace from '../lib/wwsService'
-
-const crypto = require('crypto')
 const secret = process.env.WEBHOOK_SECRET
 
 export default ({ config, db }) => {
@@ -106,10 +109,54 @@ export default ({ config, db }) => {
     }
   }
 
+  /*----------  Root  ----------*/
   api.get('/', (req, res) => {
     res.json({ version })
   })
 
+  /*----------  Utility ingestion endpoint  ----------*/
+  api.get('/ingest', (req, res) => {
+    if (req.query & req.query.space) {
+      // @todo: ingest all messages from this space
+    } else {
+      res.send(400)
+    }
+  })
+
+  /*----------  User oauth callback  ----------*/
+  api.get('/callback', (req, res) => {
+    if (req.query && req.query.code) {
+      console.log('callback initialized')
+      let wws = new WatsonWorkspace()
+      console.log('wws initialized')
+      wws.authenticateFromCode(req.query.code).then(client => {  
+        console.log('wws authenticated')
+        // save user
+        User.findOneAndUpdate({
+          wwsId: wws.config.uid
+        }, {
+          $set: {
+            wwsId: wws.config.uid,
+            name: wws.config.displayName,
+          }
+        }, {
+          new: true,
+          upsert: true,
+        }, (err, doc) => {
+          if (err) {
+            console.log(err)
+            res.send(500)
+          }
+          console.log('user created or found')
+          res.redirect(process.env.FRONTEND_URI + '?uid=' + doc.wwsId)
+        })
+      })
+    } else {
+      res.send(400)
+    }
+  })
+
+  /*----------  Inbound new message handler  ----------*/
   api.post('/message', (req, res) => {
     // Inbound message annotation
     console.log('inbound message')
@@ -147,6 +194,7 @@ export default ({ config, db }) => {
     }
   })
 
+  /*----------  User information request  ----------*/
   api.get('/:space/:user', (req, res) => {
     if (req.params && req.params.space == 'usa') {
       // @todo: get Donald ratings

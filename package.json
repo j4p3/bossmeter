@@ -1,6 +1,6 @@
 {
-  "name": "bossmeter",
-  "version": "0.0.2",
+  "name": "moodmeter-api",
+  "version": "0.1.0",
   "private": true,
   "main": "dist",
   "scripts": {
@@ -38,6 +38,7 @@
     "body-parser": "^1.13.3",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
+    "debug": "^2.6.1",
     "express": "^4.13.3",
     "graphql": "^0.8.2",
     "mongoose": "^4.7.7",

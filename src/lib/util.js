@@ -32,6 +32,7 @@ export function toJSON(req) {
 
 export function ingest(spaceId) {
   let wws = new WatsonWorkspace()
+  wws.authenticate()
   getMessages(wws, spaceId, null)
 }
 

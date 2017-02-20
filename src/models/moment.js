@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 
+mongoose.promise = global.Promise
 const messageSchema = new mongoose.Schema({
   wwsId: { type: String },
   spaceWwsId: { type: String },

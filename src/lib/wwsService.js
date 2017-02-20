@@ -10,7 +10,22 @@ const authenticationOptions = {
   "form": {
     "grant_type": "client_credentials"
   }
-};
+}
+
+const tokenAuthCred = new Buffer(
+  process.env.APP_ID +
+  ':' +
+  process.env.APP_SECRET).toString('base64')
+
+const tokenAuthenticationOptions = {
+  "method": "POST",
+  "headers": {
+    "Authorization": `Basic ${tokenAuthCred}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+  },
+  "url": `${process.env.WWS_URL}${process.env.AUTHORIZATION_API}`,
+  "body": ""
+}
 
 const GraphQLOptions = {
   "url": `${process.env.WWS_URL}/graphql`,
@@ -21,21 +36,42 @@ const GraphQLOptions = {
   },
   "method": "POST",
   "body": ""
-};
+}
 
 export default class WatsonWorkspace {
   constructor(props) {
-    this.props = props;
-    this.authenticate();
+    this.props = props
+    this.config = {}
   }
 
   authenticate() {
     let _this = this
     rp(authenticationOptions).then((res) => {
-      _this.accessToken = JSON.parse(res).access_token
-    })
-    .catch((e) => {
+      _this.config.accessToken = JSON.parse(res).access_token
+    }).catch((e) => {
       console.log('WWS Auth failed')
+      console.log(e)
+    })
+  }
+
+  authenticateFromCode(code) {
+    let _this = this
+    let queryOptions = Object.assign({}, tokenAuthenticationOptions)
+    queryOptions.form = {
+      "grant_type": "authorization_code",
+      "code": code,
+      "redirect_uri": process.env.APP_REDIRECT_URI
+    }
+    return rp(queryOptions).then((res) => {
+      console.log('wws auth passed')
+      let data = JSON.parse(res)
+      _this.config.accessToken = data.access_token
+      _this.config.displayName = data.displayName
+      _this.config.uid = data.id
+      _this.config.refresh_token = data.refresh_token
+      return _this
+    }).catch((e) => {
+      console.log('wws auth failed')
       console.log(e)
     })
   }
