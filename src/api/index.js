@@ -11,7 +11,7 @@ import WatsonWorkspace from '../lib/wwsService'
 import User from '../models/user'
 import Space from '../models/space'
 import ScoreRecord from '../models/scoreRecord'
-import Message from '../models/moment'
+import Message from '../models/message'
 
 const secret = process.env.WEBHOOK_SECRET
 
@@ -115,10 +115,19 @@ export default ({ config, db }) => {
   })
 
   /*----------  Utility ingestion endpoint  ----------*/
-  api.get('/ingest', (req, res) => {
-    if (req.query & req.query.space) {
-      // @todo: ingest all messages from this space
+  api.get('/ingest/:space', (req, res) => {
+    if (req.params && req.params.space) {
+      console.log(`/ingest operating on space: ${req.params.space}`)
+      ingest(req.params.space).then((result) => {
+        console.log('ingestion completed')
+        if (result) {
+          res.send(200)
+        } else {
+          res.send(500)
+        }
+      })
     } else {
+      console.log('no space found')
       res.send(400)
     }
   })
@@ -195,6 +204,10 @@ export default ({ config, db }) => {
   })
 
   /*----------  User information request  ----------*/
+  api.get('/analysis/:uid', (req, res) => {
+    // @todo get set of messages written by and/or directed at this uid. Average & return.
+  })
+
   api.get('/:space/:user', (req, res) => {
     if (req.params && req.params.space == 'usa') {
       // @todo: get Donald ratings

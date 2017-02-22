@@ -6,6 +6,7 @@ const messageSchema = new mongoose.Schema({
   spaceWwsId: { type: String },
   authorWwsId: { type: String },
   authorName: { type: String },
+  createdBy: { type: Object },
   content: { type: String },
   created: { type: Date },
   annotations: { type: Array }

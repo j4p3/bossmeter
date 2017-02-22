@@ -1,4 +1,5 @@
 import rp from 'request-promise'
+var ToneAnalyzer = require('watson-developer-cloud/tone-analyzer/v3')
 
 const authenticationOptions = {
   "method": "POST",
@@ -32,7 +33,7 @@ const GraphQLOptions = {
   "headers": {
     "Content-Type": "application/graphql",
     "x-graphql-view": "PUBLIC",
-    "jwt": "${jwt}"
+    "jwt": ""
   },
   "method": "POST",
   "body": ""
@@ -46,8 +47,9 @@ export default class WatsonWorkspace {
 
   authenticate() {
     let _this = this
-    rp(authenticationOptions).then((res) => {
+    return rp(authenticationOptions).then((res) => {
       _this.config.accessToken = JSON.parse(res).access_token
+      return _this
     }).catch((e) => {
       console.log('WWS Auth failed')
       console.log(e)
@@ -83,7 +85,8 @@ export default class WatsonWorkspace {
   getMessages(space, options) {
     let messages = []
     let queryOptions = Object.assign({}, GraphQLOptions)
-    let query = `space(id: "${space}") {
+    let query = `{
+      space(id: "${space}") {
         conversation {
           messages(first: 200) {
             items {
@@ -102,41 +105,65 @@ export default class WatsonWorkspace {
             }
           }
         }
-      }`
+      }
+    }`
     if (options && options.after) {
-      let query = `space(id: "${space}") {
-        conversation {
-          messages(first: 200, after: "${options.after}") {
-            items {
-              content
-              annotations
-              created
-              createdBy {
-                displayName
-                id
+      let query = `{
+        space(id: "${space}") {
+          conversation {
+            messages(first: 200, after: "${options.after}") {
+              items {
+                content
+                annotations
+                created
+                createdBy {
+                  displayName
+                  id
+                }
               }
-            }
-            pageInfo {
-              startCursor
-              endCursor
-              hasNextPage
+              pageInfo {
+                startCursor
+                endCursor
+                hasNextPage
+              }
             }
           }
         }
       }`
     }
 
-    queryOptions.headers.jwt = this.accessToken
+    queryOptions.headers.jwt = this.config.accessToken
     queryOptions.body = query
 
     return rp(queryOptions).then((res) => {
-      console.log(res)
-      let messages = res.body.data.conversation.messages
+      let data = JSON.parse(res)
+      let messages = data.data.space.conversation.messages
       return messages
+    }).catch((e) => {
+      console.log('WWS getMessage failed')
+      console.log(e)
+      return false
     })
-    .catch((e) => {
-      console.log('WWS getSpace failed')
-        console.log(e)
+  }
+
+  getMessageSentiment(message) {
+    console.log('getting message tone')
+    let toneAnalyzer = new ToneAnalyzer({
+      username: process.env.WATSON_SERVICE_ID,
+      password: process.env.WATSON_SERVICE_PASSWORD,
+      version_date: '2016-05-19'
+    });
+
+    return tone_analyzer.tone({ text: message.content }, (err, tone) => {
+      if (err) {
+        console.log(err)
+        return null
+      }
+      else {
+        console.log('good tone')
+        console.log(JSON.stringify(tone, null, 2))
+        return tone
+      }
     })
   }
 
